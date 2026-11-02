@@ -25,7 +25,7 @@ extern "C" {
 
 /**
  *  Name:         Tolk_Load
- *  Description:  Initializes Tolk by loading and initializing the screen reader drivers and setting the current screen reader driver, provided at least one of the supported screen readers is active. Also initializes COM if it has not already been initialized on the calling thread. Calling this function more than once will only initialize COM. You should call this function before using the functions below. Use Tolk_IsLoaded to determine if Tolk has been initialized.
+ *  Description:  Starts a dedicated worker thread that initializes COM and the screen reader drivers. Does not initialize or uninitialize COM on the calling thread. Repeated calls while loaded have no effect. You should call this function before using the functions below. Use Tolk_IsLoaded to determine if Tolk has been initialized.
  *  Parameters:   None.
  *  Returns:      None.
  */
@@ -41,7 +41,7 @@ TOLK_DLL_DECLSPEC bool TOLK_CALL Tolk_IsLoaded();
 
 /**
  *  Name:         Tolk_Unload
- *  Description:  Finalizes Tolk by finalizing and unloading the screen reader drivers and clearing the current screen reader driver, provided one was set. Also uninitializes COM on the calling thread. Calling this function more than once will only uninitialize COM. You should not use the functions below if this function has been called.
+ *  Description:  Finalizes and unloads the screen reader drivers on the worker thread, uninitializes its COM and waits for the thread to exit. Does not affect COM on the calling thread. Calling this function while unloaded has no effect. You should not use the functions below until Tolk_Load has been called again.
  *  Parameters:   None.
  *  Returns:      None.
  */

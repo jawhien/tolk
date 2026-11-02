@@ -26,10 +26,9 @@ The key components of Tolk are the screen reader drivers. They wrap a specific s
 
 Functions that output text or that silence speech are asynchronous. That is, they return immediately once the appropriate commands have been queued for processing by the active screen reader. All other functions are synchronous. That is, they return only when their work is done.
 
-Finally, a few words on multi-threaded applications. Tolk is not thread-safe. Also, some of the screen reader drivers use COM. You have two options for initializing COM:
+All screen reader drivers run on one dedicated worker thread, including their initialization and finalization. COM is initialized as MTA on that thread; Tolk does not change COM on the calling threads. Public calls are serialized and wait for the driver operation to finish, preserving their return values. Speech playback itself remains asynchronous.
 
-1. Call `Tolk_Load` on every thread that uses Tolk. Match every call by a call to `Tolk_Unload`. Tolk will initialize COM if required.
-2. Initialize and uninitialize COM yourself and call `Tolk_Load` only once in your application. You still need a matching call to `Tolk_Unload`. This is also what you should do in languages that automatically deal with COM, e.g. .NET.
+Call `Tolk_Load` once before using Tolk and `Tolk_Unload` when all callers are done. Repeated loads do not create additional workers or reference-count users: one unload stops Tolk for every caller. Unload waits for the worker to exit and must be called before unloading `Tolk.dll`. Do not call these functions from `DllMain`.
 
 ## Usage
 
